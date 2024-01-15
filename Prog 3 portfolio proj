@@ -1,0 +1,53 @@
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
+public class ConcurrencyExample {
+
+    // Global variables to be used by both threads
+    private static int counterUp = 0;
+    private static int counterDown = 20;
+
+    // Lock for synchronization
+    private static final Lock lock = new ReentrantLock();
+
+    // Function for counting up
+    static void countUp() {
+        for (int i = 0; i <= 20; ++i) {
+            lock.lock();
+            try {
+                counterUp = i;
+                System.out.println("Thread 1: Counting up - " + counterUp);
+            } finally {
+                lock.unlock();
+            }
+        }
+    }
+
+    // Function for counting down
+    static void countDown() {
+        for (int i = 20; i >= 0; --i) {
+            lock.lock();
+            try {
+                counterDown = i;
+                System.out.println("Thread 2: Counting down - " + counterDown);
+            } finally {
+                lock.unlock();
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        Thread t1 = new Thread(ConcurrencyExample::countUp);
+        Thread t2 = new Thread(ConcurrencyExample::countDown);
+
+        t1.start();
+        t2.start();
+
+        try {
+            t1.join();
+            t2.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+}
